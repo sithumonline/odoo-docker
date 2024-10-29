@@ -26,7 +26,15 @@ else
     PASSWORD=${DB_ENV_POSTGRES_PASSWORD:=${POSTGRES_PASSWORD:='odoo'}}
 fi
 
+# Extract SMTP parameters from environment variables
+SMTP_SERVER=${SMTP_SERVER:='smtp.example.com'}
+SMTP_PORT=${SMTP_PORT:=587}
+SMTP_USER=${SMTP_USER:='user@example.com'}
+SMTP_PASSWORD=${SMTP_PASSWORD:='password'}
+
 DB_ARGS=()
+SMTP_ARGS=()
+
 function check_config() {
     param="$1"
     value="$2"
@@ -43,6 +51,12 @@ check_config "db_user" "$USER"
 check_config "db_password" "$PASSWORD"
 #check_config "db_name" "$DB_NAME"
 
+# Add SMTP arguments to SMTP_ARGS array
+SMTP_ARGS+=("--smtp" "$SMTP_SERVER")
+SMTP_ARGS+=("--smtp-port" "$SMTP_PORT")
+SMTP_ARGS+=("--smtp-user" "$SMTP_USER")
+SMTP_ARGS+=("--smtp-password" "$SMTP_PASSWORD")
+
 case "$1" in
     -- | odoo)
         shift
@@ -50,12 +64,12 @@ case "$1" in
             exec odoo "$@"
         else
             wait-for-psql.py ${DB_ARGS[@]} --timeout=30
-            exec odoo "$@" "${DB_ARGS[@]}"
+            exec odoo "$@" "${DB_ARGS[@]}" "${SMTP_ARGS[@]}"
         fi
         ;;
     -*)
         wait-for-psql.py ${DB_ARGS[@]} --timeout=30
-        exec odoo "$@" "${DB_ARGS[@]}"
+        exec odoo "$@" "${DB_ARGS[@]}" "${SMTP_ARGS[@]}"
         ;;
     *)
         exec "$@"
