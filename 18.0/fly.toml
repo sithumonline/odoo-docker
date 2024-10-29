@@ -16,9 +16,9 @@ primary_region = 'sin'
   min_machines_running = 0
   processes = ['app']
 
-[mounts]
-  source = "odoo"
-  destination = "/var/lib/odoo/filestore"
+#[mounts]
+#  source = "odoo"
+#  destination = "/var/lib/odoo/filestore"
 
 [[vm]]
   memory = '1gb'
